@@ -9,6 +9,7 @@ A lightweight, browser-based IPv4 subnet calculator for inspecting and interacti
 - Quickly split a network into 8, 16, 32, or 64 equal subnets when the prefix allows it.
 - Choose which result columns to display.
 - Share a subnet plan with a link, or print the current plan.
+- Switch between light and dark themes; the system appearance is used by default.
 - Responsive layout with a horizontally scrollable results table on small screens.
 
 ## Run
@@ -42,7 +43,7 @@ htmldocs/
     styles.css     Responsive screen and print styles
     js/
       app.js       IPv4 calculations and interactive behavior
-    img/           Subnet-division graphics
+    img/           Legacy GIFs; the current UI renders join prefixes as text
 ```
 
 ## Input limits

@@ -10,6 +10,7 @@ var visibleColumns = {
 
 var curNetwork = 0;
 var curMask = 0;
+var hasManualThemePreference = false;
 
 function updateNetwork() {
   var newNetworkStr = document.forms["calc"].elements["network"].value;
@@ -395,17 +396,26 @@ function createRow(calcbody, node, address, mask, labels, depth) {
         newCell.rowSpan = rowspan > 1 ? rowspan : 1;
         newCell.colSpan = colspan > 1 ? colspan : 1;
 
-        if (i == labels.length / 3 - 1) {
+        var isJoinable = i != labels.length / 3 - 1;
+        if (!isJoinable) {
           newCell.className = "maskSpan";
         } else {
           newCell.className = "maskSpanJoinable";
           newCell.onclick = newJoin(joinnode);
-          //	newCell.onmouseover = function() { window.status = joinnode[0]+'---'+joinnode[1]+'---'+joinnode[2]+'>>>>>'+node[2];}
+          newCell.setAttribute("role", "button");
+          newCell.tabIndex = 0;
+          newCell.setAttribute(
+            "aria-label",
+            "Join subnets at prefix /" + mask,
+          );
+          newCell.addEventListener("keydown", newJoinOnKeydown(joinnode));
         }
+        newCell.classList.add("join-column");
 
-        var newImg = document.createElement("IMG");
-        newImg.src = "assets/img/" + mask + ".gif";
-        newCell.appendChild(newImg);
+        var maskLabel = document.createElement("SPAN");
+        maskLabel.className = "mask-label";
+        maskLabel.textContent = "/" + mask;
+        newCell.appendChild(maskLabel);
         newRow.appendChild(newCell);
 
         colspan = 1; // reset for subsequent cells
@@ -418,6 +428,15 @@ function createRow(calcbody, node, address, mask, labels, depth) {
 function newJoin(joinnode) {
   return function () {
     join(joinnode);
+  };
+}
+
+function newJoinOnKeydown(joinnode) {
+  return function (event) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      join(joinnode);
+    }
   };
 }
 
@@ -508,21 +527,9 @@ function subnet_netmask(mask) {
   return network_address(0xffffffff, mask);
 }
 
-function preloadSubnetImages() {
-  if (document.images) {
-    if (!document.preloadedImages) {
-      document.preloadedImages = new Array();
-    }
-
-    for (var i = 0; i <= 32; i++) {
-      var img = new Image();
-      img.src = "assets/img/" + i + ".gif";
-      document.preloadedImages.push(img);
-    }
-  }
-}
-
 function calcOnLoad() {
+  initializeTheme();
+
   document.forms["calc"].addEventListener("submit", function (event) {
     event.preventDefault();
     updateNetwork();
@@ -555,11 +562,14 @@ function calcOnLoad() {
     .getElementById("shareSubnet")
     .addEventListener("click", shareCurrentSubnet);
 
+  document
+    .getElementById("themeToggle")
+    .addEventListener("click", toggleTheme);
+
   document.getElementById("printSubnet").addEventListener("click", function () {
     window.print();
   });
 
-  preloadSubnetImages();
   args = parseQueryString();
   if (args["network"] && args["mask"] && args["division"]) {
     document.forms["calc"].elements["network"].value = args["network"];
@@ -573,6 +583,62 @@ function calcOnLoad() {
     recreateTables();
   } else {
     updateNetwork();
+  }
+}
+
+function initializeTheme() {
+  var storedTheme = null;
+  try {
+    storedTheme = localStorage.getItem("subnet-calculator-theme");
+  } catch (error) {
+    // Theme still follows the system preference when storage is unavailable.
+  }
+
+  var systemPrefersDark = window.matchMedia(
+    "(prefers-color-scheme: dark)",
+  ).matches;
+  hasManualThemePreference =
+    storedTheme === "light" || storedTheme === "dark";
+  var theme =
+    hasManualThemePreference
+      ? storedTheme
+      : systemPrefersDark
+        ? "dark"
+        : "light";
+
+  applyTheme(theme);
+
+  if (storedTheme !== "light" && storedTheme !== "dark") {
+    window
+      .matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", function (event) {
+        if (!hasManualThemePreference) {
+          applyTheme(event.matches ? "dark" : "light");
+        }
+      });
+  }
+}
+
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  var toggle = document.getElementById("themeToggle");
+  var nextTheme = theme === "dark" ? "light" : "dark";
+  var label = "Switch to " + nextTheme + " mode";
+  toggle.setAttribute("aria-label", label);
+  toggle.title = label;
+  toggle.firstElementChild.textContent = theme === "dark" ? "☀" : "☾";
+}
+
+function toggleTheme() {
+  var theme =
+    document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  hasManualThemePreference = true;
+  applyTheme(theme);
+
+  try {
+    localStorage.setItem("subnet-calculator-theme", theme);
+  } catch (error) {
+    // The selected theme remains active until the page is reloaded.
   }
 }
 
