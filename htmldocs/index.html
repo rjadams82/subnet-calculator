@@ -2,55 +2,89 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Subnet Calculator</title>
+        <title>subnet calculator</title>
         <link rel="stylesheet" href="styles.css">
     </head>
     <body>
         <main class="page-shell">
             <header class="page-header">
                 <p class="eyebrow">Network planning</p>
-                <h1>Subnet Calculator</h1>
-            </header>
-
-            <form name="calc" class="control-panel">
-                <div class="network-controls">
-                    <label class="field" for="network">
-                        Network address
-                        <input type="text" id="network" name="network" maxlength="15" value="192.168.0.0" autocomplete="off" spellcheck="false">
-                    </label>
-                    <label class="field" for="netbits">
-                        Prefix length
-                        <span class="prefix-input">
-                            <span aria-hidden="true">/</span>
-                            <input type="text" id="netbits" name="netbits" inputmode="numeric" maxlength="2" value="16">
-                        </span>
-                    </label>
-                    <div class="button-row">
-                        <button type="submit">Update</button>
-                        <button type="button" id="subnetReset" class="secondary-button">Reset</button>
+                <div class="page-title-row">
+                    <h1>subnet calculator</h1>
+                    <div class="header-actions">
+                        <button type="button" id="shareSubnet" class="icon-button" aria-label="Share subnet" title="Share subnet">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 16V3m0 0L7 8m5-5 5 5M5 13v7h14v-7" />
+                            </svg>
+                        </button>
+                        <button type="button" id="printSubnet" class="print-button">Print</button>
                     </div>
                 </div>
+                <p id="shareStatus" class="share-status" role="status" aria-live="polite"></p>
+            </header>
 
-                <fieldset class="column-options">
-                    <legend>Show columns</legend>
-                    <div class="column-options-list">
-                        <label><input type="checkbox" id="cb_subnet" checked> Subnet address</label>
-                        <label><input type="checkbox" id="cb_netmask" checked> Netmask</label>
-                        <label><input type="checkbox" id="cb_range" checked> Range of addresses</label>
-                        <label><input type="checkbox" id="cb_useable" checked> Useable IPs</label>
-                        <label><input type="checkbox" id="cb_hosts" checked> Hosts</label>
-                        <label><input type="checkbox" id="cb_divide" checked> Divide</label>
-                        <label><input type="checkbox" id="cb_join" checked> Join</label>
+            <div class="network-overview">
+                <form name="calc" class="control-panel">
+                    <div class="network-controls">
+                        <label class="field" for="network">
+                            network
+                            <input type="text" id="network" name="network" maxlength="15" value="192.168.0.0" autocomplete="off" spellcheck="false">
+                        </label>
+                        <label class="field" for="netbits">
+                            prefix
+                            <span class="prefix-input">
+                                <span aria-hidden="true">/</span>
+                                <input type="text" id="netbits" name="netbits" inputmode="numeric" maxlength="2" value="16">
+                            </span>
+                        </label>
+                        <div class="button-row">
+                            <button type="submit">go</button>
+                            <button type="button" id="subnetReset" class="secondary-button">clear</button>
+                        </div>
                     </div>
-                </fieldset>
-            </form>
-
-            <p class="usage-note">
-                To save your work, bookmark
-                <a href="subnets.html" id="saveLink">this subnet view</a>.
-            </p>
+                </form>
+                <section class="network-summary" aria-labelledby="networkSummaryTitle" aria-live="polite">
+                    <h2 id="networkSummaryTitle">network details</h2>
+                    <dl>
+                        <div>
+                            <dt>network</dt>
+                            <dd id="summaryNetwork">—</dd>
+                        </div>
+                        <div>
+                            <dt>subnet mask</dt>
+                            <dd id="summaryMask">—</dd>
+                        </div>
+                        <div>
+                            <dt>wildcard mask</dt>
+                            <dd id="summaryWildcard">—</dd>
+                        </div>
+                        <div>
+                            <dt>broadcast ip</dt>
+                            <dd id="summaryBroadcast">—</dd>
+                        </div>
+                    </dl>
+                </section>
+            </div>
 
             <section class="results-section" aria-label="Subnet results">
+                <div class="results-tools">
+                    <fieldset class="column-options">
+                        <legend>Show columns</legend>
+                        <div class="column-options-list">
+                            <label><input type="checkbox" id="cb_subnet" checked> Subnet address</label>
+                            <label><input type="checkbox" id="cb_netmask" checked> Netmask</label>
+                            <label><input type="checkbox" id="cb_range" checked> Range of addresses</label>
+                            <label><input type="checkbox" id="cb_useable" checked> Useable IPs</label>
+                            <label><input type="checkbox" id="cb_hosts" checked> Hosts</label>
+                            <label><input type="checkbox" id="cb_divide" checked> Divide</label>
+                            <label><input type="checkbox" id="cb_join" checked> Join</label>
+                        </div>
+                    </fieldset>
+                    <div class="quick-splits" id="quickSplitOptions" aria-label="Quick subnet divisions">
+                        <p class="quick-splits-label">Quick split</p>
+                        <div class="quick-split-buttons"></div>
+                    </div>
+                </div>
                 <p class="scroll-guidance">Swipe horizontally to reach all columns. The subnet address stays in view.</p>
                 <div class="table-scroll" role="region" aria-label="Subnet results table; scroll horizontally to see all columns" tabindex="0">
                     <table class="calc" cellspacing="0" cellpadding="2">

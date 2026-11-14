@@ -13,29 +13,30 @@ var curMask = 0;
 
 function updateNetwork() {
   var newNetworkStr = document.forms["calc"].elements["network"].value;
-  var newMask = parseInt(document.forms["calc"].elements["netbits"].value);
+  var maskValue = document.forms["calc"].elements["netbits"].value.trim();
+  var newMask = Number(maskValue);
 
   var newNetwork = inet_aton(newNetworkStr);
 
   if (newNetwork === null) {
-    alert("Invalid network address entered");
+    alert("Invalid network address");
+    return;
+  }
+
+  if (!/^\d+$/.test(maskValue) || !Number.isInteger(newMask) || newMask < 0 || newMask > 32) {
+    alert("The network mask is invalid");
     return;
   }
 
   var tmpNetwork = network_address(newNetwork, newMask);
   if (newNetwork != tmpNetwork) {
     alert(
-      "The network address entered is not on a network boundary for this mask.\nIt has been changed to " +
+      "The network address is not on a network boundary.\nIt has been changed to " +
         inet_ntoa(tmpNetwork) +
         ".",
     );
     newNetwork = tmpNetwork;
     document.forms["calc"].elements["network"].value = inet_ntoa(tmpNetwork);
-  }
-
-  if (newMask < 0 || newMask > 32) {
-    alert("The network mask you have entered is invalid");
-    return;
   }
 
   if (curMask == 0) {
@@ -45,11 +46,11 @@ function updateNetwork() {
   } else if (
     curMask != newMask &&
     confirm(
-      "You are changing the base network from /" +
+      "Changing the network from /" +
         curMask +
         " to /" +
         newMask +
-        ". This will reset any changes you have made. Proceed?",
+        ". Ok to clear?",
     )
   ) {
     curMask = newMask;
@@ -62,6 +63,8 @@ function updateNetwork() {
 
     recreateTables();
   }
+
+  updateNetworkSummary();
 }
 
 function startOver() {
@@ -107,16 +110,122 @@ function recreateTables() {
     rootSubnet[0] > 0 ? rootSubnet[0] : 1;
   //  document.getElementById('col_join').span = (rootSubnet[0] > 0 ? rootSubnet[0] : 1);
 
-  /* Create the bookmark hyperlink */
-  var link = document.getElementById("saveLink");
-  if (link) {
-    link.href =
-      "subnets.html?network=" +
-      inet_ntoa(curNetwork) +
-      "&mask=" +
-      curMask +
-      "&division=" +
-      binToAscii(nodeToString(rootSubnet));
+  updateQuickSplitOptions();
+}
+
+function updateNetworkSummary() {
+  var mask = subnet_netmask(curMask);
+  var wildcard = ~mask;
+
+  document.getElementById("summaryNetwork").textContent =
+    inet_ntoa(curNetwork) + "/" + curMask;
+  document.getElementById("summaryMask").textContent = inet_ntoa(mask);
+  document.getElementById("summaryWildcard").textContent =
+    inet_ntoa(wildcard);
+  document.getElementById("summaryBroadcast").textContent = inet_ntoa(
+    curNetwork | wildcard,
+  );
+}
+
+function updateQuickSplitOptions() {
+  var buttons = document.querySelector(".quick-split-buttons");
+  var options = document.getElementById("quickSplitOptions");
+  buttons.replaceChildren();
+
+  [8, 16, 32, 64].forEach(function (count) {
+    var additionalBits = Math.log2(count);
+    var newMask = curMask + additionalBits;
+    if (newMask > 32) {
+      return;
+    }
+
+    var button = document.createElement("button");
+    button.type = "button";
+    button.className = "quick-split-button";
+    button.dataset.subnetCount = count;
+    button.textContent = count + " subnets · /" + newMask;
+    buttons.appendChild(button);
+  });
+
+  options.hidden = buttons.childElementCount === 0;
+}
+
+function quickSplit(count) {
+  var additionalBits = Math.log2(count);
+  if (!Number.isInteger(additionalBits) || curMask + additionalBits > 32) {
+    return;
+  }
+
+  rootSubnet = createSubnetTree(additionalBits);
+  recreateTables();
+}
+
+function createSubnetTree(depth) {
+  if (depth === 0) {
+    return [0, 0, null];
+  }
+
+  return [0, 0, [createSubnetTree(depth - 1), createSubnetTree(depth - 1)]];
+}
+
+function getShareUrl() {
+  var url = new URL(window.location.href);
+  url.search = new URLSearchParams({
+    network: inet_ntoa(curNetwork),
+    mask: String(curMask),
+    division: binToAscii(nodeToString(rootSubnet)),
+  }).toString();
+  url.hash = "";
+  return url.toString();
+}
+
+async function shareCurrentSubnet() {
+  var url = getShareUrl();
+  var status = document.getElementById("shareStatus");
+
+  if (typeof navigator.share === "function") {
+    try {
+      await navigator.share({
+        title: "Subnet Calculator",
+        text: "Subnet plan",
+        url: url,
+      });
+      status.textContent = "Subnet shared.";
+      return;
+    } catch (error) {
+      if (error.name === "AbortError") {
+        status.textContent = "Sharing canceled.";
+        return;
+      }
+    }
+  }
+
+  try {
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+      await navigator.clipboard.writeText(url);
+    } else {
+      copyTextFallback(url);
+    }
+    status.textContent = "Share link copied.";
+  } catch (error) {
+    status.textContent =
+      "Unable to copy the share link. You can copy the page URL from the address bar.";
+  }
+}
+
+function copyTextFallback(text) {
+  var input = document.createElement("textarea");
+  input.value = text;
+  input.setAttribute("readonly", "");
+  input.style.position = "fixed";
+  input.style.opacity = "0";
+  document.body.appendChild(input);
+  input.select();
+  var copied = document.execCommand("copy");
+  input.remove();
+
+  if (!copied) {
+    throw new Error("Copy command failed.");
   }
 }
 
@@ -253,6 +362,7 @@ function createRow(calcbody, node, address, mask, labels, depth) {
     /* actions */
     if (visibleColumns.divide) {
       var newCell = document.createElement("TD");
+      newCell.className = "action-column";
       newRow.appendChild(newCell);
 
       if (mask == 32) {
@@ -281,6 +391,7 @@ function createRow(calcbody, node, address, mask, labels, depth) {
         var joinnode = labels[i * 3 + 2];
 
         var newCell = document.createElement("TD");
+        newCell.className = "join-column";
         newCell.rowSpan = rowspan > 1 ? rowspan : 1;
         newCell.colSpan = colspan > 1 ? colspan : 1;
 
@@ -419,7 +530,7 @@ function calcOnLoad() {
 
   document.getElementById("subnetReset").addEventListener("click", function () {
     if (
-      confirm("This will reset all subnet divisions you have made. Proceed?")
+      confirm("Reset all subnets?")
     ) {
       startOver();
     }
@@ -429,6 +540,23 @@ function calcOnLoad() {
     checkbox.addEventListener("click", function () {
       toggleColumn(this);
     });
+  });
+
+  document
+    .getElementById("quickSplitOptions")
+    .addEventListener("click", function (event) {
+      var button = event.target.closest("button[data-subnet-count]");
+      if (button) {
+        quickSplit(parseInt(button.dataset.subnetCount, 10));
+      }
+    });
+
+  document
+    .getElementById("shareSubnet")
+    .addEventListener("click", shareCurrentSubnet);
+
+  document.getElementById("printSubnet").addEventListener("click", function () {
+    window.print();
   });
 
   preloadSubnetImages();

@@ -1,6 +1,6 @@
 :root {
   color-scheme: light;
-  font-family: Arial, Verdana, sans-serif;
+  font-family: Inter, "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
   color: #1f2937;
   background: #f3f5f7;
   font-synthesis: none;
@@ -46,6 +46,19 @@ a:hover {
   margin-bottom: 1.5rem;
 }
 
+.page-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .page-header h1 {
   margin: 0;
   color: #172b3a;
@@ -54,9 +67,42 @@ a:hover {
   letter-spacing: -0.035em;
 }
 
-.page-header > p:last-child {
-  margin: 0.65rem 0 0;
-  color: #586574;
+.icon-button {
+  display: inline-grid;
+  width: 2.75rem;
+  min-height: 2.75rem;
+  flex: 0 0 auto;
+  place-items: center;
+  padding: 0.55rem;
+  border-color: #c8d1d9;
+  background: #fff;
+  color: #344252;
+}
+
+.icon-button:hover {
+  border-color: #9aa8b5;
+  background: #f3f5f7;
+  color: #172b3a;
+}
+
+.icon-button svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.share-status {
+  margin: 0.4rem 0 0;
+  color: #176b63;
+  font-size: 0.82rem;
+}
+
+.share-status:empty {
+  display: none;
 }
 
 .eyebrow {
@@ -69,6 +115,7 @@ a:hover {
 }
 
 .control-panel,
+.network-summary,
 .table-scroll {
   border: 1px solid #dce2e7;
   border-radius: 0.65rem;
@@ -78,6 +125,55 @@ a:hover {
 
 .control-panel {
   padding: 1.25rem;
+}
+
+.network-overview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(19rem, 0.9fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.network-overview .control-panel {
+  margin: 0;
+}
+
+.network-summary {
+  padding: 1.15rem 1.25rem;
+}
+
+.network-summary h2 {
+  margin: 0 0 0.75rem;
+  color: #344252;
+  font-size: 0.85rem;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.network-summary dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 1rem;
+  margin: 0;
+}
+
+.network-summary dt {
+  margin-bottom: 0.2rem;
+  color: #687685;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+
+.network-summary dd {
+  overflow-wrap: anywhere;
+  margin: 0;
+  color: #172b3a;
+  font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+  font-size: clamp(0.82rem, 1.2vw, 0.95rem);
+  font-variant-numeric: tabular-nums;
 }
 
 .network-controls {
@@ -98,7 +194,7 @@ a:hover {
 
 .field input,
 .prefix-input {
-  min-height: 2.7rem;
+  min-height: 3.1rem;
   border: 1px solid #c8d1d9;
   border-radius: 0.4rem;
   background: #fff;
@@ -106,8 +202,11 @@ a:hover {
 
 .field input {
   width: 100%;
-  padding: 0.55rem 0.7rem;
+  padding: 0.6rem 0.75rem;
   color: #172b3a;
+  font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+  font-size: 1.125rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .field:first-child {
@@ -141,6 +240,8 @@ a:hover {
   border: 0;
   outline: 0;
   padding-left: 0.25rem;
+  font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+  font-size: 1.125rem;
 }
 
 .button-row {
@@ -175,15 +276,42 @@ button.secondary-button:hover {
   background: #f3f5f7;
 }
 
+.print-button {
+  min-height: 2.75rem;
+  padding: 0.45rem 0.8rem;
+  border-color: #c8d1d9;
+  background: #fff;
+  color: #344252;
+}
+
+.print-button:hover {
+  border-color: #9aa8b5;
+  background: #f3f5f7;
+  color: #172b3a;
+}
+
+.results-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 0 0.85rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid #dce2e7;
+  border-radius: 0.65rem;
+  background: #fff;
+  box-shadow: 0 2px 8px rgb(23 43 58 / 5%);
+}
+
 .column-options {
-  margin: 1.25rem 0 0;
-  padding: 0.9rem 0 0;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
   border: 0;
-  border-top: 1px solid #e6eaee;
 }
 
 .column-options legend {
-  padding: 0 0.5rem 0 0;
+  padding: 0 0 0.35rem;
   color: #586574;
   font-size: 0.8rem;
   font-weight: 600;
@@ -192,14 +320,14 @@ button.secondary-button:hover {
 .column-options-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.55rem 1.1rem;
+  gap: 0.25rem 0.85rem;
 }
 
 .column-options-list label {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  min-height: 2rem;
+  min-height: 1.75rem;
   color: #344252;
   font-size: 0.875rem;
   cursor: pointer;
@@ -212,10 +340,40 @@ button.secondary-button:hover {
   accent-color: #176b63;
 }
 
-.usage-note {
-  margin: 1.25rem 0 1.5rem;
+.quick-splits {
+  flex: 0 0 auto;
+}
+
+.quick-splits[hidden] {
+  display: none;
+}
+
+.quick-splits-label {
+  margin: 0 0 0.35rem;
   color: #586574;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.quick-split-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+button.quick-split-button {
+  min-height: 2.25rem;
+  padding: 0.35rem 0.65rem;
+  border-color: #b9d1cd;
+  background: #f1f7f6;
+  color: #155e57;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+button.quick-split-button:hover {
+  border-color: #176b63;
+  background: #e2f0ed;
 }
 
 .results-section {
@@ -240,7 +398,9 @@ button.secondary-button:hover {
   min-width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  font-size: 0.875rem;
+  font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
   text-align: left;
 }
 
@@ -293,6 +453,109 @@ button.secondary-button:hover {
   height: auto;
 }
 
+@page {
+  size: landscape;
+  margin: 12mm;
+}
+
+@media print {
+  :root,
+  body {
+    background: #fff;
+    color: #111;
+    font-size: 10pt;
+  }
+
+  .page-shell {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .page-header {
+    margin-bottom: 0.5rem;
+  }
+
+  .eyebrow,
+  .header-actions,
+  .share-status,
+  .control-panel,
+  .results-tools,
+  .scroll-guidance,
+  .action-column,
+  .join-column,
+  #divideHeader,
+  #joinHeader {
+    display: none !important;
+  }
+
+  .network-overview {
+    display: block;
+    margin: 0 0 1rem;
+  }
+
+  .network-summary,
+  .table-scroll {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .network-summary {
+    padding: 0;
+  }
+
+  .network-summary h2 {
+    margin-bottom: 0.35rem;
+  }
+
+  .network-summary dl {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .results-section {
+    break-inside: auto;
+  }
+
+  .table-scroll {
+    max-width: none;
+    overflow: visible;
+  }
+
+  .calc {
+    width: 100%;
+    min-width: 0;
+    table-layout: fixed;
+    font-size: 8pt;
+  }
+
+  .calc th,
+  .calc td {
+    padding: 0.3rem 0.45rem;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .calc th:first-child,
+  .calc td:first-child {
+    position: static;
+    z-index: auto;
+    box-shadow: none;
+  }
+
+  .calc th {
+    background: #eee !important;
+    color: #111;
+    print-color-adjust: exact;
+  }
+
+  .calc tr {
+    break-inside: avoid;
+  }
+}
+
 @media (max-width: 600px) {
   .page-shell {
     width: min(100% - 1.25rem, 1200px);
@@ -300,6 +563,14 @@ button.secondary-button:hover {
   }
 
   .control-panel {
+    padding: 1rem;
+  }
+
+  .network-overview {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .network-summary {
     padding: 1rem;
   }
 
@@ -322,23 +593,42 @@ button.secondary-button:hover {
     flex: 1;
   }
 
+  .results-tools {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.8rem;
+    padding: 0.85rem;
+  }
+
   .column-options-list {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.25rem 0.65rem;
+    gap: 0.15rem 0.5rem;
   }
 
   .column-options-list label {
-    min-height: 2.5rem;
-    font-size: 0.8rem;
+    min-height: 2.25rem;
+    font-size: 0.78rem;
   }
 
-  .usage-note {
-    font-size: 0.85rem;
+  .quick-splits {
+    padding-top: 0.75rem;
+    border-top: 1px solid #e6eaee;
+  }
+
+  .quick-split-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  button.quick-split-button {
+    min-height: 2.6rem;
+    padding: 0.35rem 0.45rem;
+    white-space: normal;
   }
 
   .calc {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
   }
 
   .calc th:first-child,
@@ -358,5 +648,23 @@ button.secondary-button:hover {
   .calc th,
   .calc td {
     padding: 0.6rem 0.7rem;
+  }
+}
+
+@media print {
+  .calc {
+    font-size: 8pt;
+  }
+
+  .calc th,
+  .calc td {
+    padding: 0.3rem 0.45rem;
+  }
+
+  .calc th:first-child,
+  .calc td:first-child {
+    position: static;
+    z-index: auto;
+    box-shadow: none;
   }
 }
