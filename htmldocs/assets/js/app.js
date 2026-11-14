@@ -404,7 +404,7 @@ function createRow(calcbody, node, address, mask, labels, depth) {
         }
 
         var newImg = document.createElement("IMG");
-        newImg.src = "img/" + mask + ".gif";
+        newImg.src = "assets/img/" + mask + ".gif";
         newCell.appendChild(newImg);
         newRow.appendChild(newCell);
 
@@ -516,7 +516,7 @@ function preloadSubnetImages() {
 
     for (var i = 0; i <= 32; i++) {
       var img = new Image();
-      img.src = "img/" + i + ".gif";
+      img.src = "assets/img/" + i + ".gif";
       document.preloadedImages.push(img);
     }
   }
